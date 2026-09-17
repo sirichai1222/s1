@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WashMate - Premium IoT Laundry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* =========================================
+           THEME: MIDNIGHT AURORA (Dark, Sharp, Immersive)
+           ========================================= */
+        :root {
+            --primary: #00f2fe;    /* Neon Cyan */
+            --secondary: #4facfe;  /* Deep Blue */
+            --accent: #a18cd1;     /* Soft Purple */
+            --bg-base: #0b0f19;    /* Deep Space Black */
+            --surface: rgba(20, 25, 40, 0.6);
+            --surface-hover: rgba(30, 40, 60, 0.8);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow-glow: 0 0 20px rgba(0, 242, 254, 0.2);
+            --btn-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-base); color: var(--text-main);
+            min-height: 100vh; overflow: hidden; position: relative;
+        }
+
+        /* 1. Animated Aurora Background */
+        .aurora-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.15), transparent 50%),
+                        radial-gradient(circle at 85% 30%, rgba(161, 140, 209, 0.15), transparent 50%);
+            filter: blur(60px); animation: auroraWave 15s ease-in-out infinite alternate;
+        }
+        @keyframes auroraWave {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(30px, -30px); }
+        }
+
+        /* 2. SPA & Screen Transitions */
+        .screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: scale(1.05); display: flex; flex-direction: column;
+        }
+        .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+        /* =========================================
+           LOGIN SCREEN
+           ========================================= */
+        #login-screen { justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
+        .login-card {
+            background: var(--surface); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border); padding: 50px 30px; border-radius: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center;
+        }
+        
+        .logo-glow {
+            font-size: 4rem; margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(0,242,254,0.3));
+        }
+
+        /* Input Fields (คมชัด) */
+        .input-box { position: relative; margin-bottom: 25px; }
+        .input-box i { position: absolute; top: 50%; left: 20px; transform: translateY(-50%); color: var(--text-muted); }
+        .input-field {
+            width: 100%; padding: 18px 20px 18px 50px; border-radius: 18px;
+            border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3);
+            color: white; font-size: 1rem; outline: none; transition: 0.3s;
+        }
+        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,242,254,0.2); background: rgba(0,0,0,0.5); }
+        .input-field::placeholder { color: #64748b; }
+
+        /* 3. 3D Buttons (มีมิติ) */
+        .btn {
+            width: 100%; padding: 16px; border-radius: 16px; border: none;
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-glow {
+            background: linear-gradient(135deg, var(--secondary), var(--primary)); color: #000;
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4), inset 0 2px 2px rgba(255,255,255,0.5);
+        }
+        .btn-glow:hover { box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6), inset 0 2px 2px rgba(255,255,255,0.5); transform: translateY(-2px); }
+        .btn-glow:active { transform: translateY(4px); box-shadow: 0 0px 5px rgba(0, 242, 254, 0.4), inset 0 4px 6px rgba(0,0,0,0.3); }
+
+        .btn-outline { background: rgba(0,0,0,0.3); color: var(--text-main); border: 1px solid var(--glass-border); box-shadow: var(--btn-shadow); }
+        .btn-outline:active { transform: translateY(3px); box-shadow: inset 0 4px 6px rgba(0,0,0,0.4); }
+
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; box-shadow: 0 4px 10px rgba(239,68,68,0.3), inset 0 2px 2px rgba(255,255,255,0.3); }
+        .btn-danger:active { transform: translateY(3px); box-shadow: inset 0 4px 6px rgba(0,0,0,0.4); }
+
+        /* =========================================
+           MAIN APP COMPONENTS
+           ========================================= */
+        .app-header {
+            padding: 25px; background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .credit-badge {
+            background: rgba(0,242,254,0.1); border: 1px solid var(--primary);
+            padding: 5px 12px; border-radius: 20px; color: var(--primary); font-weight: 600;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .app-body { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; scrollbar-width: none; }
+        .app-body::-webkit-scrollbar { display: none; }
+        
+        .view-section { display: none; animation: fadeSlideUp 0.5s ease forwards; }
+        .view-section.active { display: block; }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 4. Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(20, 25, 40, 0.85); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 5px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8); z-index: 100;
+        }
+        .nav-item { color: var(--text-muted); cursor: pointer; transition: 0.3s; text-align: center; width: 65px; }
+        .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; transition: 0.3s; }
+        .nav-item span { font-size: 0.7rem; font-weight: 500; }
+        .nav-item.active { color: var(--primary); text-shadow: 0 0 10px rgba(0,242,254,0.5); }
+        .nav-item.active i { transform: translateY(-4px); font-size: 1.6rem; }
+
+        /* 5. Machine Cards (UI คมชัด) */
+        .machine-card {
+            background: var(--surface); border-radius: 24px; padding: 22px; margin-bottom: 20px;
+            border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden; transition: 0.3s;
+        }
+        .machine-card:hover { border-color: rgba(0,242,254,0.3); background: var(--surface-hover); }
+
+        .status-dot {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .sensor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .sensor-box {
+            background: rgba(0,0,0,0.4); padding: 15px; border-radius: 16px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.03); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .sensor-box i { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 5px; }
+        .sensor-value { font-size: 1.2rem; font-weight: 600; color: white; display: block; margin-top: 5px;}
+
+        /* Live Progress Bar (ของใหม่) */
+        .progress-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.5); border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary)); width: 0%; transition: width 1s linear; box-shadow: 0 0 10px var(--primary); }
+        
+        .spin-anim { animation: spin 2s linear infinite; color: var(--primary); }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* =========================================
+           MODALS & TOASTS
+           ========================================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; 
+            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .modal-content {
+            background: var(--bg-base); width: 90%; max-width: 400px; padding: 30px;
+            border-radius: 25px; border: 1px solid var(--glass-border);
+            transform: scale(0.9); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+
+        select.custom-select {
+            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border);
+            background: rgba(0,0,0,0.5); color: white; font-size: 1rem; margin-bottom: 20px; outline: none;
+        }
+        select.custom-select option { background: var(--bg-base); }
+
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
+        .toast {
+            background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-left: 4px solid var(--primary);
+            padding: 15px 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: toastIn 0.4s ease forwards;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="aurora-bg"></div>
+
+    <!-- =========================================
+         SCREEN 1: LOGIN
+         ========================================= -->
+    <div id="login-screen" class="screen active">
+        <div class="login-card">
+            <div class="logo-glow"><i class="fa-solid fa-hurricane"></i></div>
+            <h2 style="margin-bottom: 5px; font-weight: 700; font-size: 2rem;">WashMate</h2>
+            <p style="color: var(--text-muted); margin-bottom: 40px; font-weight: 300;">Premium Smart Laundry</p>
+            
+            <div class="input-box">
+                <i class="fa-solid fa-user-astronaut"></i>
+                <input type="text" class="input-field" value="Sirichai.p">
+            </div>
+            <div class="input-box">
+                <i class="fa-solid fa-key"></i>
+                <input type="password" class="input-field" value="password123">
+            </div>
+            
+            <button class="btn btn-glow" onclick="app.login()" id="btn-login">
+                <span>เข้าสู่ระบบ</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================
+         SCREEN 2: MAIN APP
+         ========================================= -->
+    <div id="app-screen" class="screen">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2px;">สวัสดีครับ,</p>
+                <h3 style="font-size: 1.2rem; font-weight: 600;" id="ui-username">พี่บิว</h3>
+            </div>
+            <div class="credit-badge">
+                <i class="fa-solid fa-wallet"></i> ฿<span id="ui-credit">150.00</span>
+            </div>
+        </header>
+
+        <!-- Body -->
+        <div class="app-body">
+            
+            <!-- VIEW: HOME (Dashboard) -->
+            <div id="view-home" class="view-section active">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="font-weight: 500;">ตู้ซักผ้า (หอใน)</h3>
+                    <button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 0.8rem; border-radius: 10px;" onclick="app.refreshSensors()">
+                        <i class="fa-solid fa-rotate-right"></i> อัปเดต
+                    </button>
+                </div>
+                <div id="machine-list"></div>
+            </div>
+
+            <!-- VIEW: HISTORY -->
+            <div id="view-history" class="view-section">
+                <h3 style="margin-bottom: 20px; font-weight: 500;">ประวัติการทำรายการ</h3>
+                <div id="history-list"></div>
+            </div>
+
+            <!-- VIEW: PROFILE -->
+            <div id="view-profile" class="view-section">
+                <div class="machine-card" style="text-align: center; padding: 40px 20px;">
+                    <div style="width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary), var(--primary)); color: #000; display: flex; justify-content: center; align-items: center; font-size: 3rem; margin: 0 auto 20px; box-shadow: var(--shadow-glow);">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                    <h2 id="prof-name" style="margin-bottom: 5px;">ศิริชัย พิมกุล</h2>
+                    <p style="color: var(--primary); margin-bottom: 30px; font-size: 0.9rem;"><i class="fa-solid fa-door-open"></i> ห้องพัก <span id="prof-room">A-204</span></p>
+                    
+                    <button class="btn btn-outline" style="margin-bottom: 15px;" onclick="document.getElementById('modal-profile').classList.add('active')">
+                        <i class="fa-solid fa-pen-nib"></i> แก้ไขข้อมูล
+                    </button>
+                    <button class="btn btn-danger" onclick="app.logout()">
+                        <i class="fa-solid fa-power-off"></i> ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="app.switchTab('home', this)">
+                <i class="fa-solid fa-layer-group"></i><span>หน้าหลัก</span>
+            </div>
+            <div class="nav-item" onclick="app.switchTab('history', this)">
+                <i class="fa-solid fa-clock-rotate-left"></i><span>ประวัติ</span>
+            </div>
+            <div class="nav-item" onclick="app.switchTab('profile', this)">
+                <i class="fa-solid fa-id-card"></i><span>โปรไฟล์</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- =========================================
+         MODALS & TOAST CONTAINER
+         ========================================= -->
+    <div id="toast-container"></div>
+    
+    <!-- Modal: จองเครื่อง -->
+    <div class="modal-overlay" id="modal-book">
+        <div class="modal-content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-microchip" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;"></i>
+                <h2 id="book-m-name">เครื่องซักผ้า 1</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">เลือกระบบการซักอัจฉริยะ</p>
+            </div>
+            
+            <select id="book-mode" class="custom-select">
+                <option value="1|30">⚡ Quick Wash (1 นาที) - ฿30</option>
+                <option value="2|40">👕 Deep Clean (2 นาที) - ฿40</option>
+            </select>
+
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-outline" onclick="app.closeModal('modal-book')">ยกเลิก</button>
+                <button class="btn btn-glow" onclick="app.confirmBooking()">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: แก้ไขโปรไฟล์ -->
+    <div class="modal-overlay" id="modal-profile">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px; text-align: center;">ข้อมูลผู้ใช้งาน</h2>
+            <div class="input-box">
+                <i class="fa-solid fa-pen"></i>
+                <input type="text" id="edit-name" class="input-field" placeholder="ชื่อ-นามสกุล">
+            </div>
+            <div class="input-box">
+                <i class="fa-solid fa-door-closed"></i>
+                <input type="text" id="edit-room" class="input-field" placeholder="เลขห้อง">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-outline" onclick="app.closeModal('modal-profile')">ยกเลิก</button>
+                <button class="btn btn-glow" onclick="app.saveProfile()">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         CORE LOGIC (JavaScript)
+         ========================================= -->
+    <script>
+        const app = {
+            user: { name: "ศิริชัย พิมกุล", room: "A-204", credit: 150.00 },
+            selectedMachine: null,
+            machines: [
+                { id: "M01", name: "เครื่องซักผ้า No.1", type: "ฝาหน้า 10kg", status: "idle", timeTotal: 0, timeRemain: 0, sensor: { water: 0, temp: 28 } },
+                { id: "M02", name: "เครื่องซักผ้า No.2", type: "ฝาบน 12kg", status: "idle", timeTotal: 0, timeRemain: 0, sensor: { water: 0, temp: 29 } }
+            ],
+            history: [
+                { date: "เมื่อวาน 14:20", machine: "เครื่องซักผ้า No.1", mode: "Deep Clean", price: 40 }
+            ],
+
+            login: function() {
+                const btn = document.getElementById('btn-login');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังเชื่อมต่อ...';
+                
+                setTimeout(() => {
+                    document.getElementById('login-screen').classList.remove('active');
+                    document.getElementById('app-screen').classList.add('active');
+                    this.updateUI();
+                    this.renderMachines();
+                    this.renderHistory();
+                    this.startIoT();
+                    this.showToast("เข้าสู่ระบบ WashMate OS สำเร็จ!", "success");
+                    btn.innerHTML = '<span>เข้าสู่ระบบ</span> <i class="fa-solid fa-arrow-right"></i>';
+                }, 1200);
+            },
+
+            logout: function() {
+                document.getElementById('app-screen').classList.remove('active');
+                document.getElementById('login-screen').classList.add('active');
+            },
+
+            switchTab: function(tabId, el) {
+                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.getElementById(`view-${tabId}`).classList.add('active');
+                el.classList.add('active');
+            },
+
+            updateUI: function() {
+                document.getElementById('ui-username').innerText = this.user.name.split(" ")[0];
+                document.getElementById('ui-credit').innerText = this.user.credit.toFixed(2);
+                document.getElementById('prof-name').innerText = this.user.name;
+                document.getElementById('prof-room').innerText = this.user.room;
+            },
+
+            renderMachines: function() {
+                const list = document.getElementById('machine-list');
+                list.innerHTML = '';
+
+                this.machines.forEach(m => {
+                    const isIdle = m.status === 'idle';
+                    let progress = isIdle ? 0 : ((m.timeTotal - m.timeRemain) / m.timeTotal) * 100;
+
+                    list.innerHTML += `
+                        <div class="machine-card">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-dharmachakra ${!isIdle ? 'spin-anim' : ''}" style="font-size: 1.8rem; color: ${isIdle ? 'var(--text-muted)' : 'var(--primary)'}"></i>
+                                    <div>
+                                        <h3 style="font-size: 1.1rem; margin-bottom: 2px;">${m.name}</h3>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted);">${m.type}</span>
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.8rem; font-weight: 600; color: ${isIdle ? 'var(--success)' : 'var(--warning)'};">
+                                    <div class="status-dot" style="background: ${isIdle ? 'var(--success)' : 'var(--warning)'};"></div> ${isIdle ? 'ว่าง' : 'ทำงาน'}
+                                </span>
+                            </div>
+
+                            <div class="sensor-grid">
+                                <div class="sensor-box">
+                                    <i class="fa-solid fa-water ${!isIdle ? 'fa-fade' : ''}" style="${!isIdle ? 'color: var(--secondary)' : ''}"></i><br>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Water Level</span>
+                                    <span class="sensor-value" id="water-${m.id}">${m.sensor.water}%</span>
+                                </div>
+                                <div class="sensor-box">
+                                    <i class="fa-solid fa-temperature-three-quarters ${!isIdle ? 'fa-beat-fade' : ''}" style="${!isIdle ? 'color: #ef4444' : ''}"></i><br>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Temperature</span>
+                                    <span class="sensor-value" id="temp-${m.id}">${m.sensor.temp}°C</span>
+                                </div>
+                            </div>
+
+                            ${isIdle ? `
+                                <button class="btn btn-glow" onclick="app.openBookModal('${m.id}')">จองคิวซัก</button>
+                            ` : `
+                                <div class="progress-bg"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="flex: 1.5; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: var(--primary);">
+                                        <i class="fa-solid fa-hourglass-half fa-spin" style="margin-right: 8px;"></i> <span id="time-${m.id}">${m.timeRemain}</span> นาที
+                                    </div>
+                                    <button class="btn btn-danger" style="flex: 1; padding: 12px;" onclick="app.forceStop('${m.id}')">หยุดเครื่อง</button>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                });
+            },
+
+            openBookModal: function(id) {
+                this.selectedMachine = this.machines.find(x => x.id === id);
+                document.getElementById('book-m-name').innerText = this.selectedMachine.name;
+                document.getElementById('modal-book').classList.add('active');
+            },
+            closeModal: function(id) { document.getElementById(id).classList.remove('active'); },
+
+            confirmBooking: function() {
+                const val = document.getElementById('book-mode').value.split('|');
+                const time = parseInt(val[0]);
+                const price = parseInt(val[1]);
+
+                if (this.user.credit < price) { this.showToast("ยอดเงินไม่พอ กรุณาเติมเงิน!", "error"); return; }
+
+                // Process Logic
+                this.user.credit -= price;
+                this.selectedMachine.status = 'busy';
+                this.selectedMachine.timeTotal = time;
+                this.selectedMachine.timeRemain = time;
+                this.selectedMachine.sensor.water = 50; // น้ำเข้าเครื่อง
+                
+                this.history.unshift({ date: "กำลังทำงาน...", machine: this.selectedMachine.name, mode: "ระบบอัตโนมัติ", price: price });
+                
+                this.updateUI();
+                this.renderMachines();
+                this.renderHistory();
+                this.closeModal('modal-book');
+                this.showToast(`เริ่มซัก ${this.selectedMachine.name} (หัก ฿${price})`, "success");
+                this.startTimer(this.selectedMachine);
+            },
+
+            forceStop: function(id) {
+                if(confirm("ยกเลิกการซักฉุกเฉิน? (ระบบจะไม่คืนเงิน)")) {
+                    const m = this.machines.find(x => x.id === id);
+                    m.status = 'idle'; m.timeRemain = 0; m.sensor.water = 0;
+                    this.showToast(`หยุด ${m.name} ฉุกเฉินเรียบร้อย`, "error");
+                    this.renderMachines();
+                }
+            },
+
+            startTimer: function(m) {
+                const interval = setInterval(() => {
+                    if(m.status === 'idle') { clearInterval(interval); return; } // โดน force stop
+                    
+                    if(m.timeRemain > 0) {
+                        m.timeRemain--;
+                        this.renderMachines(); // วาด progress ใหม่
+                    } else {
+                        clearInterval(interval);
+                        m.status = 'idle'; m.sensor.water = 0;
+                        this.history[0].date = "ซักเสร็จสิ้น"; // อัปเดตประวัติ
+                        this.renderMachines();
+                        this.renderHistory();
+                        this.showToast(`✅ ${m.name} ซักเสร็จแล้ว กรุณารับผ้า!`, "success");
+                    }
+                }, 1000); // จำลอง 1 วิ = 1 นาที
+            },
+
+            startIoT: function() {
+                setInterval(() => {
+                    this.machines.forEach(m => {
+                        if(m.status === 'busy') {
+                            // จำลองเซ็นเซอร์ขยับ Real-time
+                            m.sensor.temp += (Math.random() > 0.5 ? 1 : -1);
+                            if(m.sensor.water < 95) m.sensor.water += Math.floor(Math.random() * 2);
+                            
+                            const tempUI = document.getElementById(`temp-${m.id}`);
+                            const waterUI = document.getElementById(`water-${m.id}`);
+                            if(tempUI) tempUI.innerText = m.sensor.temp + "°C";
+                            if(waterUI) waterUI.innerText = m.sensor.water + "%";
+                        }
+                    });
+                }, 2000);
+            },
+            
+            refreshSensors: function() {
+                this.showToast("อัปเดตสถานะเซ็นเซอร์ล่าสุดแล้ว", "success");
+            },
+
+            renderHistory: function() {
+                const list = document.getElementById('history-list');
+                list.innerHTML = '';
+                this.history.forEach(h => {
+                    list.innerHTML += `
+                        <div style="background: var(--surface); padding: 18px; border-radius: 18px; border: 1px solid var(--glass-border); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div style="width: 45px; height: 45px; background: rgba(0,242,254,0.1); color: var(--primary); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem;">
+                                    <i class="fa-solid fa-shirt"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 1rem; margin-bottom: 2px;">${h.machine}</h4>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">${h.date}</span>
+                                </div>
+                            </div>
+                            <strong style="color: var(--text-main);">฿${h.price}</strong>
+                        </div>
+                    `;
+                });
+            },
+
+            saveProfile: function() {
+                this.user.name = document.getElementById('edit-name').value || this.user.name;
+                this.user.room = document.getElementById('edit-room').value || this.user.room;
+                this.updateUI();
+                this.closeModal('modal-profile');
+                this.showToast("บันทึกข้อมูลสำเร็จ", "success");
+            },
+
+            showToast: function(msg, type) {
+                const box = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                const icon = type === 'error' ? '<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>' : '<i class="fa-solid fa-circle-check" style="color:var(--primary)"></i>';
+                toast.innerHTML = `${icon} <span style="font-size:0.9rem;">${msg}</span>`;
+                box.appendChild(toast);
+                setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+            }
+        };
+    </script>
+</body>
+</html>
