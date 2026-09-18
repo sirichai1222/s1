@@ -9,195 +9,126 @@
     
     <style>
         /* =========================================
-           THEME: MIDNIGHT AURORA (Dark, Sharp, Immersive)
+           THEME: MIDNIGHT AURORA 4.0 (Role-Based Sync)
            ========================================= */
         :root {
-            --primary: #00f2fe;    /* Neon Cyan */
-            --secondary: #4facfe;  /* Deep Blue */
-            --accent: #a18cd1;     /* Soft Purple */
-            --bg-base: #0b0f19;    /* Deep Space Black */
-            --surface: rgba(20, 25, 40, 0.6);
-            --surface-hover: rgba(30, 40, 60, 0.8);
+            --primary: #00f2fe;    
+            --secondary: #4facfe;  
+            --accent: #a18cd1;
+            --admin-color: #f43f5e;     
+            --bg-base: #090d14;    
+            --surface: rgba(20, 25, 40, 0.7);
+            --surface-hover: rgba(30, 40, 60, 0.9);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
+            --maintenance: #64748b;
             --glass-border: rgba(255, 255, 255, 0.08);
             --shadow-glow: 0 0 20px rgba(0, 242, 254, 0.2);
             --btn-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow: hidden; }
 
-        body {
-            background-color: var(--bg-base); color: var(--text-main);
-            min-height: 100vh; overflow: hidden; position: relative;
-        }
-
-        /* 1. Animated Aurora Background */
         .aurora-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.15), transparent 50%),
-                        radial-gradient(circle at 85% 30%, rgba(161, 140, 209, 0.15), transparent 50%);
-            filter: blur(60px); animation: auroraWave 15s ease-in-out infinite alternate;
+            background: radial-gradient(circle at 20% 40%, rgba(79, 172, 254, 0.12), transparent 40%),
+                        radial-gradient(circle at 80% 60%, rgba(161, 140, 209, 0.12), transparent 40%);
+            filter: blur(50px); animation: auroraWave 20s ease-in-out infinite alternate;
         }
-        @keyframes auroraWave {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.1) translate(30px, -30px); }
-        }
+        @keyframes auroraWave { 100% { transform: scale(1.2) translate(20px, -20px); } }
 
-        /* 2. SPA & Screen Transitions */
         .screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; pointer-events: none;
-            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            opacity: 0; pointer-events: none; transition: 0.5s;
             transform: scale(1.05); display: flex; flex-direction: column;
         }
         .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
 
-        /* =========================================
-           LOGIN SCREEN
-           ========================================= */
+        /* Login Screen & Role Selector */
         #login-screen { justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
-        .login-card {
-            background: var(--surface); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border); padding: 50px 30px; border-radius: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center;
-        }
+        .login-card { background: var(--surface); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); padding: 40px 30px; border-radius: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; transition: 0.3s; }
+        .logo-glow { font-size: 3.5rem; margin-bottom: 10px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(0,242,254,0.3)); transition: 0.3s; }
         
-        .logo-glow {
-            font-size: 4rem; margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(0,242,254,0.3));
-        }
+        .role-selector { display: flex; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 5px; margin-bottom: 25px; border: 1px solid var(--glass-border); }
+        .role-btn { flex: 1; padding: 12px; border-radius: 12px; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; transition: 0.3s; }
+        .role-btn.active { background: var(--primary); color: #000; font-weight: 600; box-shadow: var(--shadow-glow); }
+        .role-btn.active-admin { background: var(--admin-color); color: #fff; font-weight: 600; box-shadow: 0 0 15px rgba(244,63,94,0.4); }
 
-        /* Input Fields (คมชัด) */
-        .input-box { position: relative; margin-bottom: 25px; }
-        .input-box i { position: absolute; top: 50%; left: 20px; transform: translateY(-50%); color: var(--text-muted); }
-        .input-field {
-            width: 100%; padding: 18px 20px 18px 50px; border-radius: 18px;
-            border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3);
-            color: white; font-size: 1rem; outline: none; transition: 0.3s;
-        }
-        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,242,254,0.2); background: rgba(0,0,0,0.5); }
-        .input-field::placeholder { color: #64748b; }
+        .input-box { position: relative; margin-bottom: 20px; }
+        .input-box i { position: absolute; top: 50%; left: 20px; transform: translateY(-50%); color: var(--text-muted); transition: 0.3s; }
+        .input-field { width: 100%; padding: 18px 20px 18px 50px; border-radius: 18px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: white; font-size: 1rem; outline: none; transition: 0.3s; }
+        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,242,254,0.2); }
 
-        /* 3. 3D Buttons (มีมิติ) */
-        .btn {
-            width: 100%; padding: 16px; border-radius: 16px; border: none;
-            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .btn-glow {
-            background: linear-gradient(135deg, var(--secondary), var(--primary)); color: #000;
-            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4), inset 0 2px 2px rgba(255,255,255,0.5);
-        }
-        .btn-glow:hover { box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6), inset 0 2px 2px rgba(255,255,255,0.5); transform: translateY(-2px); }
-        .btn-glow:active { transform: translateY(4px); box-shadow: 0 0px 5px rgba(0, 242, 254, 0.4), inset 0 4px 6px rgba(0,0,0,0.3); }
-
+        /* Buttons */
+        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-glow { background: linear-gradient(135deg, var(--secondary), var(--primary)); color: #000; box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4), inset 0 2px 2px rgba(255,255,255,0.5); }
+        .btn-glow:active { transform: translateY(4px); box-shadow: inset 0 4px 6px rgba(0,0,0,0.3); }
+        
         .btn-outline { background: rgba(0,0,0,0.3); color: var(--text-main); border: 1px solid var(--glass-border); box-shadow: var(--btn-shadow); }
         .btn-outline:active { transform: translateY(3px); box-shadow: inset 0 4px 6px rgba(0,0,0,0.4); }
-
-        .btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; box-shadow: 0 4px 10px rgba(239,68,68,0.3), inset 0 2px 2px rgba(255,255,255,0.3); }
-        .btn-danger:active { transform: translateY(3px); box-shadow: inset 0 4px 6px rgba(0,0,0,0.4); }
-
-        /* =========================================
-           MAIN APP COMPONENTS
-           ========================================= */
-        .app-header {
-            padding: 25px; background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(20px);
-            display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border);
-        }
         
-        .credit-badge {
-            background: rgba(0,242,254,0.1); border: 1px solid var(--primary);
-            padding: 5px 12px; border-radius: 20px; color: var(--primary); font-weight: 600;
-            box-shadow: var(--shadow-glow);
-        }
+        .btn-admin { background: linear-gradient(135deg, var(--admin-color), #be123c); color: white; box-shadow: 0 4px 10px rgba(244,63,94,0.3); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; box-shadow: 0 4px 10px rgba(239,68,68,0.3); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 10px rgba(245,158,11,0.3); }
+
+        /* Header & App Body */
+        .app-header { padding: 25px; background: rgba(10, 15, 25, 0.85); backdrop-filter: blur(20px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); z-index: 10;}
+        .credit-badge { background: rgba(0,242,254,0.1); border: 1px solid var(--primary); padding: 8px 15px; border-radius: 20px; color: var(--primary); font-weight: 600; box-shadow: var(--shadow-glow); cursor: pointer; transition: 0.2s; }
+        .credit-badge:hover { background: rgba(0,242,254,0.2); transform: scale(1.05); }
 
         .app-body { flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px; scrollbar-width: none; }
         .app-body::-webkit-scrollbar { display: none; }
-        
-        .view-section { display: none; animation: fadeSlideUp 0.5s ease forwards; }
+        .view-section { display: none; animation: fadeSlideUp 0.4s ease forwards; }
         .view-section.active { display: block; }
         @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 4. Bottom Nav */
-        .bottom-nav {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            background: rgba(20, 25, 40, 0.85); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
-            border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 5px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8); z-index: 100;
-        }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(20, 25, 40, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 5px; z-index: 100; }
         .nav-item { color: var(--text-muted); cursor: pointer; transition: 0.3s; text-align: center; width: 65px; }
         .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; transition: 0.3s; }
         .nav-item span { font-size: 0.7rem; font-weight: 500; }
         .nav-item.active { color: var(--primary); text-shadow: 0 0 10px rgba(0,242,254,0.5); }
         .nav-item.active i { transform: translateY(-4px); font-size: 1.6rem; }
+        .nav-item.active-admin { color: var(--admin-color); text-shadow: 0 0 10px rgba(244,63,94,0.5); }
+        .nav-item.active-admin i { transform: translateY(-4px); font-size: 1.6rem; }
 
-        /* 5. Machine Cards (UI คมชัด) */
-        .machine-card {
-            background: var(--surface); border-radius: 24px; padding: 22px; margin-bottom: 20px;
-            border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative; overflow: hidden; transition: 0.3s;
-        }
+        /* Machine Cards & Data UI */
+        .machine-card { background: var(--surface); border-radius: 24px; padding: 22px; margin-bottom: 20px; border: 1px solid var(--glass-border); position: relative; transition: 0.3s; }
         .machine-card:hover { border-color: rgba(0,242,254,0.3); background: var(--surface-hover); }
-
-        .status-dot {
-            width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px;
-            box-shadow: 0 0 10px currentColor;
-        }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 10px currentColor; }
 
         .sensor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
-        .sensor-box {
-            background: rgba(0,0,0,0.4); padding: 15px; border-radius: 16px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.03); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
-        }
+        .sensor-box { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.03); }
         .sensor-box i { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 5px; }
-        .sensor-value { font-size: 1.2rem; font-weight: 600; color: white; display: block; margin-top: 5px;}
+        .sensor-value { font-size: 1.1rem; font-weight: 600; color: white; display: block; margin-top: 5px;}
 
-        /* Live Progress Bar (ของใหม่) */
+        .mode-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+        .mode-card { background: rgba(0,0,0,0.4); border: 2px solid var(--glass-border); padding: 15px; border-radius: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .mode-card.active { border-color: var(--primary); background: rgba(0,242,254,0.1); box-shadow: inset 0 0 15px rgba(0,242,254,0.2); }
+        
         .progress-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.5); border-radius: 10px; margin: 15px 0; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary)); width: 0%; transition: width 1s linear; box-shadow: 0 0 10px var(--primary); }
-        
         .spin-anim { animation: spin 2s linear infinite; color: var(--primary); }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* =========================================
-           MODALS & TOASTS
-           ========================================= */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
-            display: flex; justify-content: center; align-items: center; 
-            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        /* Admin Dashboard Components */
+        .admin-header { background: rgba(244, 63, 94, 0.1); border-bottom: 1px solid rgba(244, 63, 94, 0.2); }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--surface); padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border); text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--admin-color); margin-top: 5px; }
         
-        .modal-content {
-            background: var(--bg-base); width: 90%; max-width: 400px; padding: 30px;
-            border-radius: 25px; border: 1px solid var(--glass-border);
-            transform: scale(0.9); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-        }
+        /* Modals & Toasts */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--bg-base); width: 90%; max-width: 400px; padding: 30px; border-radius: 25px; border: 1px solid var(--glass-border); transform: scale(0.9); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.active .modal-content { transform: scale(1); }
 
-        select.custom-select {
-            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border);
-            background: rgba(0,0,0,0.5); color: white; font-size: 1rem; margin-bottom: 20px; outline: none;
-        }
-        select.custom-select option { background: var(--bg-base); }
-
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
-        .toast {
-            background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); border-left: 4px solid var(--primary);
-            padding: 15px 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: toastIn 0.4s ease forwards;
-        }
+        .toast { background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: toastIn 0.4s ease forwards; }
         @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -206,21 +137,31 @@
     <div class="aurora-bg"></div>
 
     <!-- =========================================
-         SCREEN 1: LOGIN
+         SCREEN 1: LOGIN (Role Selection)
          ========================================= -->
     <div id="login-screen" class="screen active">
-        <div class="login-card">
-            <div class="logo-glow"><i class="fa-solid fa-hurricane"></i></div>
+        <div class="login-card" id="login-card-bg">
+            <div class="logo-glow" id="login-logo-color"><i class="fa-solid fa-hurricane"></i></div>
             <h2 style="margin-bottom: 5px; font-weight: 700; font-size: 2rem;">WashMate</h2>
-            <p style="color: var(--text-muted); margin-bottom: 40px; font-weight: 300;">Premium Smart Laundry</p>
+            <p style="color: var(--text-muted); margin-bottom: 25px; font-weight: 300;">Smart Laundry OS</p>
             
+            <!-- สวิตช์เลือก Role -->
+            <div class="role-selector">
+                <div class="role-btn active" id="btn-role-user" onclick="app.setRole('user')">
+                    <i class="fa-solid fa-user"></i> ผู้ใช้งาน
+                </div>
+                <div class="role-btn" id="btn-role-admin" onclick="app.setRole('admin')">
+                    <i class="fa-solid fa-user-shield"></i> ผู้ดูแลระบบ
+                </div>
+            </div>
+
             <div class="input-box">
-                <i class="fa-solid fa-user-astronaut"></i>
-                <input type="text" class="input-field" value="Sirichai.p">
+                <i class="fa-solid fa-id-badge" id="login-icon"></i>
+                <input type="text" id="login-user" class="input-field" placeholder="Student ID หรือ Username" value="Sirichai.p">
             </div>
             <div class="input-box">
                 <i class="fa-solid fa-key"></i>
-                <input type="password" class="input-field" value="password123">
+                <input type="password" class="input-field" placeholder="รหัสผ่าน" value="password123">
             </div>
             
             <button class="btn btn-glow" onclick="app.login()" id="btn-login">
@@ -230,31 +171,24 @@
     </div>
 
     <!-- =========================================
-         SCREEN 2: MAIN APP
+         SCREEN 2: MAIN APP (USER MODE)
          ========================================= -->
     <div id="app-screen" class="screen">
-        
-        <!-- Header -->
         <header class="app-header">
             <div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2px;">สวัสดีครับ,</p>
                 <h3 style="font-size: 1.2rem; font-weight: 600;" id="ui-username">พี่บิว</h3>
             </div>
-            <div class="credit-badge">
-                <i class="fa-solid fa-wallet"></i> ฿<span id="ui-credit">150.00</span>
+            <div class="credit-badge" onclick="app.openTopUpModal()">
+                <i class="fa-solid fa-wallet"></i> ฿<span id="ui-credit">150.00</span> <i class="fa-solid fa-plus" style="font-size: 0.7rem; margin-left: 5px;"></i>
             </div>
         </header>
 
-        <!-- Body -->
         <div class="app-body">
-            
-            <!-- VIEW: HOME (Dashboard) -->
+            <!-- VIEW: HOME -->
             <div id="view-home" class="view-section active">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 style="font-weight: 500;">ตู้ซักผ้า (หอใน)</h3>
-                    <button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 0.8rem; border-radius: 10px;" onclick="app.refreshSensors()">
-                        <i class="fa-solid fa-rotate-right"></i> อัปเดต
-                    </button>
                 </div>
                 <div id="machine-list"></div>
             </div>
@@ -275,31 +209,100 @@
                     <p style="color: var(--primary); margin-bottom: 30px; font-size: 0.9rem;"><i class="fa-solid fa-door-open"></i> ห้องพัก <span id="prof-room">A-204</span></p>
                     
                     <button class="btn btn-outline" style="margin-bottom: 15px;" onclick="document.getElementById('modal-profile').classList.add('active')">
-                        <i class="fa-solid fa-pen-nib"></i> แก้ไขข้อมูล
+                        <i class="fa-solid fa-pen-nib"></i> แก้ไขข้อมูลส่วนตัว
                     </button>
+                    <!-- นำปุ่มเข้าสู่โหมด Admin ออกแล้ว ต้องไป Login ใหม่เท่านั้น -->
                     <button class="btn btn-danger" onclick="app.logout()">
-                        <i class="fa-solid fa-power-off"></i> ออกจากระบบ
+                        <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Nav -->
         <nav class="bottom-nav">
-            <div class="nav-item active" onclick="app.switchTab('home', this)">
+            <div class="nav-item active" onclick="app.switchTab('home', this, 'user')">
                 <i class="fa-solid fa-layer-group"></i><span>หน้าหลัก</span>
             </div>
-            <div class="nav-item" onclick="app.switchTab('history', this)">
+            <div class="nav-item" onclick="app.switchTab('history', this, 'user')">
                 <i class="fa-solid fa-clock-rotate-left"></i><span>ประวัติ</span>
             </div>
-            <div class="nav-item" onclick="app.switchTab('profile', this)">
+            <div class="nav-item" onclick="app.switchTab('profile', this, 'user')">
                 <i class="fa-solid fa-id-card"></i><span>โปรไฟล์</span>
             </div>
         </nav>
     </div>
 
     <!-- =========================================
-         MODALS & TOAST CONTAINER
+         SCREEN 3: ADMIN DASHBOARD
+         ========================================= -->
+    <div id="admin-screen" class="screen">
+        <header class="app-header admin-header">
+            <div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2px;">ผู้ดูแลระบบ (Admin)</p>
+                <h3 style="font-size: 1.2rem; font-weight: 600; color: var(--admin-color);">WashMate Center</h3>
+            </div>
+            <button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 0.8rem;" onclick="app.logout()">
+                <i class="fa-solid fa-power-off"></i> ออกจากระบบ
+            </button>
+        </header>
+
+        <div class="app-body">
+            <!-- ADMIN VIEW: DASHBOARD (เช็กรายได้) -->
+            <div id="admin-view-dashboard" class="view-section active">
+                <h3 style="margin-bottom: 15px; font-weight: 500;">สรุปรายได้ (Real-time)</h3>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-sack-dollar" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+                        <div class="stat-value">฿<span id="admin-total-revenue">1,250</span></div>
+                        <span style="font-size: 0.8rem; color: var(--success);">ยอดเงินสะสม</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-chart-line" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+                        <div class="stat-value" id="admin-total-orders">28</div>
+                        <span style="font-size: 0.8rem; color: var(--primary);">จำนวนคิวทั้งหมด</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px; margin-top: 25px; font-weight: 500;">รายการอัปเดตล่าสุดจาก User</h3>
+                <div id="admin-history-list"></div>
+            </div>
+
+            <!-- ADMIN VIEW: MACHINES (เช็กเครื่องเสีย) -->
+            <div id="admin-view-machines" class="view-section">
+                <h3 style="margin-bottom: 15px; font-weight: 500;">ควบคุมเครื่องซักผ้า</h3>
+                <div id="admin-machine-list"></div>
+            </div>
+
+            <!-- ADMIN VIEW: REPORTS (แจ้งซ่อม) -->
+            <div id="admin-view-reports" class="view-section">
+                <h3 style="margin-bottom: 15px; font-weight: 500;">รายการแจ้งซ่อมจากผู้ใช้</h3>
+                <div id="admin-report-list">
+                    <div style="background: var(--surface); padding: 15px; border-radius: 15px; border-left: 4px solid var(--admin-color); margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <strong style="color: var(--text-main);">ตู้อบผ้า No.3</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">เมื่อวาน</span>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">"เครื่องกินเหรียญครับ ฝาประตูปิดไม่สนิท"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active active-admin" onclick="app.switchTab('dashboard', this, 'admin')">
+                <i class="fa-solid fa-chart-pie"></i><span>รายได้</span>
+            </div>
+            <div class="nav-item" onclick="app.switchTab('machines', this, 'admin')">
+                <i class="fa-solid fa-toolbox"></i><span>จัดการตู้</span>
+            </div>
+            <div class="nav-item" onclick="app.switchTab('reports', this, 'admin')">
+                <i class="fa-solid fa-envelope-open-text"></i><span>แจ้งซ่อม</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- =========================================
+         MODALS 
          ========================================= -->
     <div id="toast-container"></div>
     
@@ -308,18 +311,53 @@
         <div class="modal-content">
             <div style="text-align: center; margin-bottom: 20px;">
                 <i class="fa-solid fa-microchip" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;"></i>
-                <h2 id="book-m-name">เครื่องซักผ้า 1</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">เลือกระบบการซักอัจฉริยะ</p>
+                <h2 id="book-m-name">เครื่องซักผ้า</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">เลือกโปรแกรมซักที่ต้องการ</p>
             </div>
-            
-            <select id="book-mode" class="custom-select">
-                <option value="1|30">⚡ Quick Wash (1 นาที) - ฿30</option>
-                <option value="2|40">👕 Deep Clean (2 นาที) - ฿40</option>
-            </select>
-
+            <div class="mode-grid">
+                <div class="mode-card active" onclick="app.selectMode(this, 1, 30)">
+                    <div><i class="fa-solid fa-bolt" style="color:var(--warning);"></i> Quick Wash (1 นาที)</div>
+                    <strong style="color:var(--primary);">฿30</strong>
+                </div>
+                <div class="mode-card" onclick="app.selectMode(this, 2, 40)">
+                    <div><i class="fa-solid fa-shirt" style="color:var(--secondary);"></i> Deep Clean (2 นาที)</div>
+                    <strong style="color:var(--primary);">฿40</strong>
+                </div>
+            </div>
             <div style="display: flex; gap: 12px;">
                 <button class="btn btn-outline" onclick="app.closeModal('modal-book')">ยกเลิก</button>
-                <button class="btn btn-glow" onclick="app.confirmBooking()">ยืนยัน</button>
+                <button class="btn btn-glow" onclick="app.confirmBooking()">ชำระเงิน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: เติมเงิน -->
+    <div class="modal-overlay" id="modal-topup">
+        <div class="modal-content" style="text-align: center;">
+            <h2 style="margin-bottom: 5px;">เติมเงิน WashMate</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">สแกน QR Code ด้วยแอปธนาคาร</p>
+            <div style="width: 200px; height: 200px; background: white; margin: 0 auto 20px; border-radius: 20px; display: flex; justify-content: center; align-items: center;">
+                <i class="fa-solid fa-qrcode" style="font-size: 8rem; color: #000;"></i>
+            </div>
+            <button class="btn btn-glow" onclick="app.simulatePayment()">
+                <i class="fa-solid fa-check"></i> จำลองการโอนสำเร็จ (+100 บาท)
+            </button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="app.closeModal('modal-topup')">ปิด</button>
+        </div>
+    </div>
+
+    <!-- Modal: แจ้งซ่อม -->
+    <div class="modal-overlay" id="modal-report">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 15px; color: var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> แจ้งเครื่องขัดข้อง</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">ระบุปัญหาของ <span id="report-m-name" style="color:white; font-weight:bold;"></span></p>
+            <div class="input-box">
+                <i class="fa-solid fa-comment-dots"></i>
+                <input type="text" id="report-desc" class="input-field" placeholder="เช่น น้ำไม่ไหล, เครื่องมีเสียงดัง">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-outline" onclick="app.closeModal('modal-report')">ยกเลิก</button>
+                <button class="btn btn-danger" onclick="app.submitReport()">ส่งรายงาน</button>
             </div>
         </div>
     </div>
@@ -329,12 +367,10 @@
         <div class="modal-content">
             <h2 style="margin-bottom: 20px; text-align: center;">ข้อมูลผู้ใช้งาน</h2>
             <div class="input-box">
-                <i class="fa-solid fa-pen"></i>
-                <input type="text" id="edit-name" class="input-field" placeholder="ชื่อ-นามสกุล">
+                <i class="fa-solid fa-pen"></i><input type="text" id="edit-name" class="input-field" placeholder="ชื่อ-นามสกุล">
             </div>
             <div class="input-box">
-                <i class="fa-solid fa-door-closed"></i>
-                <input type="text" id="edit-room" class="input-field" placeholder="เลขห้อง">
+                <i class="fa-solid fa-door-closed"></i><input type="text" id="edit-room" class="input-field" placeholder="เลขห้อง">
             </div>
             <div style="display: flex; gap: 12px;">
                 <button class="btn btn-outline" onclick="app.closeModal('modal-profile')">ยกเลิก</button>
@@ -348,42 +384,108 @@
          ========================================= -->
     <script>
         const app = {
-            user: { name: "ศิริชัย พิมกุล", room: "A-204", credit: 150.00 },
+            currentRole: 'user', // สถานะเริ่มต้นหน้า Login
+            user: { name: "ศิริชัย พิมกุล", room: "A-204", credit: 50.00 },
+            
+            // ข้อมูลฝั่ง Admin (เงินเข้า)
+            adminData: { totalRevenue: 1250, totalOrders: 28 }, 
+            
             selectedMachine: null,
+            selectedMode: { time: 1, price: 30, modeName: "Quick Wash" },
+            
             machines: [
-                { id: "M01", name: "เครื่องซักผ้า No.1", type: "ฝาหน้า 10kg", status: "idle", timeTotal: 0, timeRemain: 0, sensor: { water: 0, temp: 28 } },
-                { id: "M02", name: "เครื่องซักผ้า No.2", type: "ฝาบน 12kg", status: "idle", timeTotal: 0, timeRemain: 0, sensor: { water: 0, temp: 29 } }
+                { id: "M01", name: "เครื่องซักผ้า No.1", type: "ฝาหน้า 10kg", status: "idle", timeTotal: 0, timeRemain: 0, sensor: { water: 0, temp: 28 }, timerId: null },
+                { id: "M02", name: "เครื่องซักผ้า No.2", type: "ฝาบน 12kg", status: "idle", timeTotal: 0, timeRemain: 0, sensor: { water: 0, temp: 29 }, timerId: null },
+                { id: "M03", name: "ตู้อบผ้า No.3", type: "ระบบปิด", status: "maintenance", timeTotal: 0, timeRemain: 0, sensor: { water: 0, temp: 0 }, timerId: null }
             ],
+            
             history: [
-                { date: "เมื่อวาน 14:20", machine: "เครื่องซักผ้า No.1", mode: "Deep Clean", price: 40 }
+                { date: "เมื่อวาน 14:20", user: "อมราพร ร.", machine: "เครื่องซักผ้า No.1", mode: "Deep Clean", price: 40 }
             ],
+
+            init: function() {
+                this.startIoT();
+            },
+
+            /* --- ระบบ Role Selection หน้า Login --- */
+            setRole: function(role) {
+                this.currentRole = role;
+                const btnUser = document.getElementById('btn-role-user');
+                const btnAdmin = document.getElementById('btn-role-admin');
+                const btnLogin = document.getElementById('btn-login');
+                const loginInput = document.getElementById('login-user');
+
+                if (role === 'user') {
+                    btnUser.classList.add('active');
+                    btnAdmin.classList.remove('active-admin');
+                    btnLogin.className = 'btn btn-glow';
+                    document.getElementById('login-icon').className = 'fa-solid fa-user-astronaut';
+                    document.getElementById('login-logo-color').style.background = 'linear-gradient(135deg, var(--primary), var(--accent))';
+                    document.getElementById('login-logo-color').style.webkitBackgroundClip = 'text';
+                    loginInput.placeholder = 'Student ID หรือ Username';
+                    loginInput.value = 'Sirichai.p';
+                } else {
+                    btnUser.classList.remove('active');
+                    btnAdmin.classList.add('active-admin');
+                    btnLogin.className = 'btn btn-admin';
+                    document.getElementById('login-icon').className = 'fa-solid fa-user-shield';
+                    document.getElementById('login-logo-color').style.background = 'linear-gradient(135deg, var(--admin-color), #be123c)';
+                    document.getElementById('login-logo-color').style.webkitBackgroundClip = 'text';
+                    loginInput.placeholder = 'Admin ID';
+                    loginInput.value = 'Admin_Master';
+                }
+            },
 
             login: function() {
                 const btn = document.getElementById('btn-login');
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังเชื่อมต่อ...';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังตรวจสอบสิทธิ์...';
                 
                 setTimeout(() => {
                     document.getElementById('login-screen').classList.remove('active');
-                    document.getElementById('app-screen').classList.add('active');
-                    this.updateUI();
-                    this.renderMachines();
-                    this.renderHistory();
-                    this.startIoT();
-                    this.showToast("เข้าสู่ระบบ WashMate OS สำเร็จ!", "success");
+                    
+                    if (this.currentRole === 'user') {
+                        // เข้าโหมดผู้ใช้งาน
+                        document.getElementById('app-screen').classList.add('active');
+                        this.updateUI();
+                        this.renderMachines();
+                        this.showToast("ยินดีต้อนรับเข้าสู่ระบบ User", "success");
+                    } else {
+                        // เข้าโหมดแอดมิน
+                        document.getElementById('admin-screen').classList.add('active');
+                        this.renderAdminDashboard();
+                        this.renderAdminMachines();
+                        this.showToast("ยินดีต้อนรับ Admin! ข้อมูลอัปเดตล่าสุดแล้ว", "success");
+                    }
+                    
                     btn.innerHTML = '<span>เข้าสู่ระบบ</span> <i class="fa-solid fa-arrow-right"></i>';
-                }, 1200);
+                }, 1000);
             },
 
             logout: function() {
+                // ออกจากทุกหน้า กลับไป Login
                 document.getElementById('app-screen').classList.remove('active');
+                document.getElementById('admin-screen').classList.remove('active');
                 document.getElementById('login-screen').classList.add('active');
+                // รีเซ็ตปุ่ม Tab กลับไปหน้าแรก
+                this.switchTab('home', document.querySelectorAll('#app-screen .nav-item')[0], 'user');
+                this.switchTab('dashboard', document.querySelectorAll('#admin-screen .nav-item')[0], 'admin');
             },
 
-            switchTab: function(tabId, el) {
-                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                document.getElementById(`view-${tabId}`).classList.add('active');
-                el.classList.add('active');
+            switchTab: function(tabId, el, role) {
+                const container = role === 'user' ? document.getElementById('app-screen') : document.getElementById('admin-screen');
+                container.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                container.querySelectorAll('.nav-item').forEach(n => {
+                    n.classList.remove('active');
+                    n.classList.remove('active-admin');
+                });
+                
+                document.getElementById(role === 'user' ? `view-${tabId}` : `admin-view-${tabId}`).classList.add('active');
+                if(role === 'user') {
+                    el.classList.add('active');
+                    if(tabId === 'history') this.renderHistory();
+                } else {
+                    el.classList.add('active-admin');
+                }
             },
 
             updateUI: function() {
@@ -393,124 +495,236 @@
                 document.getElementById('prof-room').innerText = this.user.room;
             },
 
+            /* --- ฝั่งผู้ใช้งาน (User) --- */
             renderMachines: function() {
                 const list = document.getElementById('machine-list');
                 list.innerHTML = '';
 
                 this.machines.forEach(m => {
-                    const isIdle = m.status === 'idle';
-                    let progress = isIdle ? 0 : ((m.timeTotal - m.timeRemain) / m.timeTotal) * 100;
+                    let statusConfig = { color: 'var(--success)', text: 'ว่าง', icon: 'fa-circle-check' };
+                    let progress = 0;
+
+                    if (m.status === 'busy') { statusConfig = { color: 'var(--primary)', text: 'ทำงาน', icon: 'fa-dharmachakra spin-anim' }; progress = ((m.timeTotal - m.timeRemain) / m.timeTotal) * 100; }
+                    else if (m.status === 'waiting') { statusConfig = { color: 'var(--warning)', text: 'รอเช็คอิน', icon: 'fa-clock' }; }
+                    else if (m.status === 'maintenance') { statusConfig = { color: 'var(--maintenance)', text: 'ปิดปรับปรุง', icon: 'fa-wrench' }; }
 
                     list.innerHTML += `
-                        <div class="machine-card">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <i class="fa-solid fa-dharmachakra ${!isIdle ? 'spin-anim' : ''}" style="font-size: 1.8rem; color: ${isIdle ? 'var(--text-muted)' : 'var(--primary)'}"></i>
-                                    <div>
-                                        <h3 style="font-size: 1.1rem; margin-bottom: 2px;">${m.name}</h3>
-                                        <span style="font-size: 0.8rem; color: var(--text-muted);">${m.type}</span>
-                                    </div>
-                                </div>
-                                <span style="font-size: 0.8rem; font-weight: 600; color: ${isIdle ? 'var(--success)' : 'var(--warning)'};">
-                                    <div class="status-dot" style="background: ${isIdle ? 'var(--success)' : 'var(--warning)'};"></div> ${isIdle ? 'ว่าง' : 'ทำงาน'}
-                                </span>
+                        <div class="machine-card" style="${m.status === 'maintenance' ? 'opacity: 0.6;' : ''}">
+                            <div style="position: absolute; top: 15px; right: 15px;">
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem; border-radius: 8px;" onclick="app.openReportModal('${m.id}')" ${m.status === 'maintenance' ? 'disabled' : ''}>
+                                    <i class="fa-solid fa-triangle-exclamation"></i> แจ้งซ่อม
+                                </button>
                             </div>
 
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <i class="fa-solid ${statusConfig.icon}" style="font-size: 1.8rem; color: ${statusConfig.color}"></i>
+                                <div>
+                                    <h3 style="font-size: 1.1rem; margin-bottom: 2px;">${m.name}</h3>
+                                    <span style="font-size: 0.8rem; color: ${statusConfig.color}; font-weight: 600;">${statusConfig.text}</span>
+                                </div>
+                            </div>
+                            
                             <div class="sensor-grid">
                                 <div class="sensor-box">
-                                    <i class="fa-solid fa-water ${!isIdle ? 'fa-fade' : ''}" style="${!isIdle ? 'color: var(--secondary)' : ''}"></i><br>
+                                    <i class="fa-solid fa-water ${m.status === 'busy' ? 'fa-fade' : ''}" style="${m.status === 'busy' ? 'color: var(--secondary)' : ''}"></i><br>
                                     <span style="font-size: 0.75rem; color: var(--text-muted);">Water Level</span>
                                     <span class="sensor-value" id="water-${m.id}">${m.sensor.water}%</span>
                                 </div>
                                 <div class="sensor-box">
-                                    <i class="fa-solid fa-temperature-three-quarters ${!isIdle ? 'fa-beat-fade' : ''}" style="${!isIdle ? 'color: #ef4444' : ''}"></i><br>
+                                    <i class="fa-solid fa-temperature-three-quarters ${m.status === 'busy' ? 'fa-beat-fade' : ''}" style="${m.status === 'busy' ? 'color: #ef4444' : ''}"></i><br>
                                     <span style="font-size: 0.75rem; color: var(--text-muted);">Temperature</span>
                                     <span class="sensor-value" id="temp-${m.id}">${m.sensor.temp}°C</span>
                                 </div>
                             </div>
-
-                            ${isIdle ? `
-                                <button class="btn btn-glow" onclick="app.openBookModal('${m.id}')">จองคิวซัก</button>
-                            ` : `
-                                <div class="progress-bg"><div class="progress-fill" style="width: ${progress}%"></div></div>
-                                <div style="display: flex; gap: 10px;">
-                                    <div style="flex: 1.5; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: var(--primary);">
-                                        <i class="fa-solid fa-hourglass-half fa-spin" style="margin-right: 8px;"></i> <span id="time-${m.id}">${m.timeRemain}</span> นาที
-                                    </div>
-                                    <button class="btn btn-danger" style="flex: 1; padding: 12px;" onclick="app.forceStop('${m.id}')">หยุดเครื่อง</button>
-                                </div>
-                            `}
+                            ${this.renderMachineControls(m, progress)}
                         </div>
                     `;
                 });
             },
 
+            renderMachineControls: function(m, progress) {
+                if (m.status === 'idle') return `<button class="btn btn-glow" style="margin-top:15px;" onclick="app.openBookModal('${m.id}')">จองคิวซัก</button>`;
+                if (m.status === 'waiting') return `<button class="btn btn-warning" style="margin-top:15px;" onclick="app.checkIn('${m.id}')">กด Check-in หน้าตู้ (เหลือ 15 วิ)</button>`;
+                if (m.status === 'busy') return `<div class="progress-bg"><div class="progress-fill" style="width: ${progress}%"></div></div><div style="text-align:center; color:var(--primary); font-weight:bold;">เหลือ ${m.timeRemain} นาที</div>`;
+                if (m.status === 'maintenance') return `<button class="btn btn-outline" disabled style="margin-top:15px; border-color:var(--maintenance);">แอดมินปิดปรับปรุงเครื่องนี้</button>`;
+            },
+
+            renderHistory: function() {
+                const list = document.getElementById('history-list');
+                list.innerHTML = '';
+                this.history.forEach(h => {
+                    // โชว์เฉพาะของตัวเองหรือแอดมินมองเห็นหมด
+                    if(h.user !== this.user.name.split(" ")[0] && h.user !== "อมราพร ร.") return; 
+                    list.innerHTML += `
+                        <div style="background: var(--surface); padding: 18px; border-radius: 18px; border: 1px solid var(--glass-border); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div style="width: 45px; height: 45px; background: rgba(0,242,254,0.1); color: var(--primary); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem;">
+                                    <i class="fa-solid fa-shirt"></i>
+                                </div>
+                                <div><h4 style="font-size: 1rem; margin-bottom: 2px;">${h.machine}</h4><span style="font-size: 0.8rem; color: var(--text-muted);">${h.date}</span></div>
+                            </div>
+                            <strong style="color: var(--text-main);">฿${h.price}</strong>
+                        </div>
+                    `;
+                });
+            },
+
+            /* --- ฟีเจอร์จอง และ อัปเดตเงินฝั่ง Admin (Data Sync) --- */
             openBookModal: function(id) {
                 this.selectedMachine = this.machines.find(x => x.id === id);
                 document.getElementById('book-m-name').innerText = this.selectedMachine.name;
                 document.getElementById('modal-book').classList.add('active');
             },
-            closeModal: function(id) { document.getElementById(id).classList.remove('active'); },
-
+            selectMode: function(el, time, price) {
+                document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+                this.selectedMode = { time: time, price: price, modeName: el.innerText.split('(')[0].trim() };
+            },
             confirmBooking: function() {
-                const val = document.getElementById('book-mode').value.split('|');
-                const time = parseInt(val[0]);
-                const price = parseInt(val[1]);
+                if (this.user.credit < this.selectedMode.price) { this.showToast("ยอดเงินไม่พอ!", "error"); return; }
 
-                if (this.user.credit < price) { this.showToast("ยอดเงินไม่พอ กรุณาเติมเงิน!", "error"); return; }
-
-                // Process Logic
-                this.user.credit -= price;
-                this.selectedMachine.status = 'busy';
-                this.selectedMachine.timeTotal = time;
-                this.selectedMachine.timeRemain = time;
-                this.selectedMachine.sensor.water = 50; // น้ำเข้าเครื่อง
+                // 1. หักเงิน User
+                this.user.credit -= this.selectedMode.price;
                 
-                this.history.unshift({ date: "กำลังทำงาน...", machine: this.selectedMachine.name, mode: "ระบบอัตโนมัติ", price: price });
+                // 2. เพิ่มรายได้ให้ Admin (Sync ข้อมูลทันที)
+                this.adminData.totalRevenue += this.selectedMode.price;
+                this.adminData.totalOrders += 1;
+
+                this.selectedMachine.status = 'waiting';
+                this.selectedMachine.timeTotal = this.selectedMode.time;
                 
                 this.updateUI();
                 this.renderMachines();
-                this.renderHistory();
                 this.closeModal('modal-book');
-                this.showToast(`เริ่มซัก ${this.selectedMachine.name} (หัก ฿${price})`, "success");
-                this.startTimer(this.selectedMachine);
-            },
-
-            forceStop: function(id) {
-                if(confirm("ยกเลิกการซักฉุกเฉิน? (ระบบจะไม่คืนเงิน)")) {
-                    const m = this.machines.find(x => x.id === id);
-                    m.status = 'idle'; m.timeRemain = 0; m.sensor.water = 0;
-                    this.showToast(`หยุด ${m.name} ฉุกเฉินเรียบร้อย`, "error");
-                    this.renderMachines();
-                }
-            },
-
-            startTimer: function(m) {
-                const interval = setInterval(() => {
-                    if(m.status === 'idle') { clearInterval(interval); return; } // โดน force stop
-                    
-                    if(m.timeRemain > 0) {
-                        m.timeRemain--;
-                        this.renderMachines(); // วาด progress ใหม่
-                    } else {
-                        clearInterval(interval);
-                        m.status = 'idle'; m.sensor.water = 0;
-                        this.history[0].date = "ซักเสร็จสิ้น"; // อัปเดตประวัติ
-                        this.renderMachines();
-                        this.renderHistory();
-                        this.showToast(`✅ ${m.name} ซักเสร็จแล้ว กรุณารับผ้า!`, "success");
+                this.showToast(`จองคิวสำเร็จ กรุณา Check-in`, "success");
+                
+                // คิวหลุดอัตโนมัติ
+                this.selectedMachine.timerId = setTimeout(() => {
+                    if (this.selectedMachine.status === 'waiting') {
+                        this.selectedMachine.status = 'idle';
+                        this.user.credit += this.selectedMode.price; // คืนเงิน User
+                        this.adminData.totalRevenue -= this.selectedMode.price; // ดึงเงินจาก Admin คืน
+                        this.adminData.totalOrders -= 1;
+                        this.updateUI(); this.renderMachines();
+                        this.showToast(`คิวหลุดแล้ว (คืนเงิน ฿${this.selectedMode.price})`, "error");
                     }
-                }, 1000); // จำลอง 1 วิ = 1 นาที
+                }, 15000);
+            },
+            checkIn: function(id) {
+                const m = this.machines.find(x => x.id === id);
+                clearTimeout(m.timerId);
+                m.status = 'busy'; m.timeRemain = m.timeTotal; m.sensor.water = 40;
+                
+                // บันทึกประวัติ (ข้อมูลนี้จะไปโผล่ที่หน้า Admin ทันที)
+                this.history.unshift({ date: "เพิ่งสั่งงาน", user: this.user.name.split(" ")[0], machine: m.name, mode: this.selectedMode.modeName, price: this.selectedMode.price });
+                
+                this.renderMachines();
+                this.showToast(`เริ่มการซัก!`, "success");
+                
+                m.timerId = setInterval(() => {
+                    if(m.timeRemain > 0) { m.timeRemain--; this.renderMachines(); } 
+                    else {
+                        clearInterval(m.timerId); m.status = 'idle'; m.sensor.water = 0;
+                        this.showToast(`✅ ${m.name} ซักเสร็จแล้ว!`, "success");
+                        this.renderMachines();
+                    }
+                }, 1000);
             },
 
+            /* --- ฝั่งแอดมิน (Admin Dashboard) --- */
+            renderAdminDashboard: function() {
+                // ดึงข้อมูลที่ sync มาจาก User
+                document.getElementById('admin-total-revenue').innerText = this.adminData.totalRevenue.toLocaleString();
+                document.getElementById('admin-total-orders').innerText = this.adminData.totalOrders;
+
+                const list = document.getElementById('admin-history-list');
+                list.innerHTML = '';
+                this.history.forEach(h => {
+                    list.innerHTML += `
+                        <div style="background: var(--surface); padding: 15px; border-radius: 15px; border-left: 4px solid var(--success); margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <div>
+                                <strong style="color:white;">${h.machine}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">โดย ${h.user}</span><br>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">${h.date}</span>
+                            </div>
+                            <strong style="color: var(--success);">+ ฿${h.price}</strong>
+                        </div>
+                    `;
+                });
+            },
+
+            renderAdminMachines: function() {
+                const list = document.getElementById('admin-machine-list');
+                list.innerHTML = '';
+                this.machines.forEach(m => {
+                    const isBroken = m.status === 'maintenance';
+                    list.innerHTML += `
+                        <div style="background: var(--surface); padding: 20px; border-radius: 15px; border: 1px solid var(--glass-border); margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <strong style="font-size:1.1rem; color:white;">${m.name}</strong>
+                                <span style="padding: 3px 10px; border-radius: 10px; font-size:0.8rem; background: ${isBroken ? 'rgba(244,63,94,0.2)' : 'rgba(16,185,129,0.2)'}; color: ${isBroken ? 'var(--admin-color)' : 'var(--success)'};">
+                                    สถานะปัจจุบัน: ${isBroken ? 'ชำรุด' : m.status}
+                                </span>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn ${isBroken ? 'btn-outline' : 'btn-glow'}" style="flex:1; padding:10px;" onclick="app.setMachineStatus('${m.id}', 'idle')" ${!isBroken && m.status !== 'maintenance' ? 'disabled' : ''}>
+                                    <i class="fa-solid fa-check"></i> ใช้งานได้
+                                </button>
+                                <button class="btn ${isBroken ? 'btn-danger' : 'btn-outline'}" style="flex:1; padding:10px;" onclick="app.setMachineStatus('${m.id}', 'maintenance')">
+                                    <i class="fa-solid fa-wrench"></i> ตั้งว่าเครื่องเสีย
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            },
+
+            setMachineStatus: function(id, newStatus) {
+                const m = this.machines.find(x => x.id === id);
+                if (m.status === 'busy' && newStatus === 'maintenance') {
+                    if(!confirm("เครื่องนี้กำลังซักผ้าอยู่ ต้องการบังคับปิดปรับปรุงหรือไม่?")) return;
+                    clearInterval(m.timerId);
+                }
+                m.status = newStatus;
+                this.renderAdminMachines();
+                this.showToast(`เปลี่ยนสถานะ ${m.name} เป็น ${newStatus === 'idle' ? 'เปิดใช้งาน' : 'ปิดปรับปรุง'} แล้ว`, "success");
+            },
+
+            /* --- ระบบรับแจ้งซ่อม --- */
+            openReportModal: function(id) {
+                this.selectedMachine = this.machines.find(x => x.id === id);
+                document.getElementById('report-m-name').innerText = this.selectedMachine.name;
+                document.getElementById('modal-report').classList.add('active');
+            },
+            submitReport: function() {
+                const desc = document.getElementById('report-desc').value || "ไม่มีรายละเอียด";
+                // ส่งข้อมูลเข้าหน้า Admin Report
+                const list = document.getElementById('admin-report-list');
+                list.innerHTML = `
+                    <div style="background: var(--surface); padding: 15px; border-radius: 15px; border-left: 4px solid var(--admin-color); margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <strong style="color: var(--text-main);">${this.selectedMachine.name}</strong>
+                            <span style="font-size: 0.8rem; color: var(--admin-color);">เพิ่งแจ้งเข้ามา</span>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">"แจ้งจากห้อง ${this.user.room}: ${desc}"</p>
+                    </div>
+                ` + list.innerHTML;
+                
+                this.closeModal('modal-report');
+                this.showToast("ส่งแจ้งซ่อมให้แอดมินเรียบร้อยแล้ว", "success"); 
+            },
+
+            /* --- Utilities --- */
+            openTopUpModal: function() { document.getElementById('modal-topup').classList.add('active'); },
+            simulatePayment: function() { this.user.credit += 100; this.updateUI(); this.closeModal('modal-topup'); this.showToast("เติมเงินสำเร็จ", "success"); },
+            closeModal: function(id) { document.getElementById(id).classList.remove('active'); },
+            saveProfile: function() { this.user.name = document.getElementById('edit-name').value || this.user.name; this.user.room = document.getElementById('edit-room').value || this.user.room; this.updateUI(); this.closeModal('modal-profile'); this.showToast("บันทึกข้อมูลสำเร็จ", "success"); },
+            
             startIoT: function() {
                 setInterval(() => {
                     this.machines.forEach(m => {
                         if(m.status === 'busy') {
-                            // จำลองเซ็นเซอร์ขยับ Real-time
                             m.sensor.temp += (Math.random() > 0.5 ? 1 : -1);
                             if(m.sensor.water < 95) m.sensor.water += Math.floor(Math.random() * 2);
-                            
                             const tempUI = document.getElementById(`temp-${m.id}`);
                             const waterUI = document.getElementById(`water-${m.id}`);
                             if(tempUI) tempUI.innerText = m.sensor.temp + "°C";
@@ -519,40 +733,6 @@
                     });
                 }, 2000);
             },
-            
-            refreshSensors: function() {
-                this.showToast("อัปเดตสถานะเซ็นเซอร์ล่าสุดแล้ว", "success");
-            },
-
-            renderHistory: function() {
-                const list = document.getElementById('history-list');
-                list.innerHTML = '';
-                this.history.forEach(h => {
-                    list.innerHTML += `
-                        <div style="background: var(--surface); padding: 18px; border-radius: 18px; border: 1px solid var(--glass-border); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <div style="width: 45px; height: 45px; background: rgba(0,242,254,0.1); color: var(--primary); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem;">
-                                    <i class="fa-solid fa-shirt"></i>
-                                </div>
-                                <div>
-                                    <h4 style="font-size: 1rem; margin-bottom: 2px;">${h.machine}</h4>
-                                    <span style="font-size: 0.8rem; color: var(--text-muted);">${h.date}</span>
-                                </div>
-                            </div>
-                            <strong style="color: var(--text-main);">฿${h.price}</strong>
-                        </div>
-                    `;
-                });
-            },
-
-            saveProfile: function() {
-                this.user.name = document.getElementById('edit-name').value || this.user.name;
-                this.user.room = document.getElementById('edit-room').value || this.user.room;
-                this.updateUI();
-                this.closeModal('modal-profile');
-                this.showToast("บันทึกข้อมูลสำเร็จ", "success");
-            },
-
             showToast: function(msg, type) {
                 const box = document.getElementById('toast-container');
                 const toast = document.createElement('div');
@@ -563,6 +743,8 @@
                 setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
             }
         };
+
+        app.init();
     </script>
 </body>
 </html>
